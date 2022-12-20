@@ -1,6 +1,10 @@
 
 recuperation("http://localhost:3000/api/products")
 
+/**
+ * Récupération de l'api
+ * @param {url} url 
+ */
 async function recuperation(url){
   try{
         const dataApi = await fetch(url)
@@ -14,22 +18,10 @@ async function recuperation(url){
   }
 }
 
-
-function addLengthPanier(){
-  let total = 0
-  let panier = getPanier()
-  if(panier.length > 0){
-      panier.forEach(element => {
-          const totalArticle = element["Quantity"]
-          total = total+ totalArticle
-      })
-      document.querySelector(".count").innerHTML = total;
-      document.querySelector(".count").style.color = "#3498db"
-      document.querySelector(".count").style.marginLeft = "2px"
-      document.querySelector(".count").style.fontWeight = "bold"
-  }
-}
-
+/**
+ * Récupération du panier
+ * @returns un objet panier vide ou l'objet panier avec les éléments du panier
+ */
 function getPanier(){
   // on récupère le panier qui est dans le localstorage sous l'appelation panier
   let panier = JSON.parse(localStorage.getItem("panier"))
@@ -39,9 +31,13 @@ function getPanier(){
   }else{
       // sinon on retourne le panier
       return panier;                     
-  }   
+  }         
 }
 
+/**
+ * Récupération des données de l'api et affichage des données
+ * @param {objet} objet 
+ */
 function showData(objet){
   let items = document.querySelector("#items");
   let idProduct = document.querySelector("#idProducts");
@@ -56,12 +52,16 @@ function showData(objet){
         const nameProduit = objet[i]["name"];
         const descProduit = objet[i]["description"];
         const imageProduit = objet[i]["imageUrl"];
+        const altImgProduit = objet[i]["altTxt"]
 
         creationElement()
         
+        /**
+         * Création des éléments qui affichent les caractéristiques
+         */
         function creationElement(){
-          //constructeur de nouveau bloc pour chaque data 
-          let newProductA = document.createElement( "a");                   //creation cartes produits 
+          //crée un nouveau bloc pour chaque data
+          let newProductA = document.createElement( "a");                   
           newProductA.setAttribute("href", "product.html?id=" + idProduit)
           newProductA.innerHTML = 
           `<a id="idProducts" href="product.html?id=${idProduit}"></a>
@@ -76,5 +76,4 @@ function showData(objet){
         
     }    
 }
-
 

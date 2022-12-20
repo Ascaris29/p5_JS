@@ -1,67 +1,118 @@
 
 createCart()
-
-
+/**
+ * Affichage du panier 
+ */
 function createCart(){
     let panier = getPanier()
     let blocItems =  document.querySelector("#cart__items");
+    let price 
+
     // si le panier n'est pas vide
     if(panier !== null){
         let prixTotal = 0
         // on va faire le tour du panier 
         panier.forEach(element => {
             // pour chaque produit dans le panier, nous créeons un article et l'envoyons au DOM
+            //article
+            prixTotal = element["price"] * element["Quantity"];
+            
             let inputCart = document.createElement("article");
             blocItems.appendChild(inputCart);
+            //console.log(priceProduit)
             //calculer le prix total de l'article
-            prixTotal = element["price"] * element["Quantity"];
-            inputCart.innerHTML = `
-                <article class="cart__item" data-id="${element['id']}" data-color="${element['Color']}">
-                            <div class="cart__item__img">
-                            <img src="${element["image"]}" alt="">
-                            </div>
-                            <div class="cart__item__content">
-                            <div class="cart__item__content__description">
-                                <h2>${element['name']}</h2>
-                                <p>${element['Color']}</p>
-                                <p>${prixTotal} €</p>
-                            </div>
-                            <div class="cart__item__content__settings">
-                                <div class="cart__item__content__settings__quantity">
-                                <p>Qté : ${element['Quantity']}</p>
-                                <input type="number" id="itemQuantity" name="itemQuantity" min="1" max="100" value="${element['Quantity']}">
-                                </div>
-                                <div class="cart__item__content__settings__delete">
-                                <p class="deleteItem">Supprimer</p>
-                                </div>
-                            </div>
-                            </div>
-                        </article>
-                `
-                displayTotalPrice()
-                displayTotalArticles()
-                modifyItem()
-                deleteItem()
-                addLengthPanier()
+            inputCart.setAttribute("class", "cart__item")
+            inputCart.setAttribute("data-id", element["id"])
+            inputCart.setAttribute("data-color", element["Color"])
+
+            let classItem1 = document.createElement("div");
+            inputCart.appendChild(classItem1)
+            classItem1.setAttribute("class", "cart__item__img")
+
+            let imgClassItem = document.createElement("img")
+            classItem1.appendChild(imgClassItem)
+            imgClassItem.setAttribute("src", element["image"])
+            imgClassItem.setAttribute("alt", "")
+
+            let classItem2 = document.createElement("div")
+            inputCart.appendChild(classItem2)
+            classItem2.setAttribute("class", "cart__item__content")
+            
+            let classItem3 = document.createElement("div")
+            classItem2.appendChild(classItem3)
+            classItem3.setAttribute("class", "cart__item__content__description")
+
+            let titleClassItem3 = document.createElement("h2")
+            classItem3.appendChild(titleClassItem3)
+            titleClassItem3.textContent = element['name']
+
+            let pClassItem3 = document.createElement("p")
+            classItem3.appendChild(pClassItem3)
+            pClassItem3.setAttribute("class", "color")
+            pClassItem3.textContent = element['Color']
+
+            let p2ClassItem3 = document.createElement("p")
+            classItem3.appendChild(p2ClassItem3)
+            p2ClassItem3.setAttribute("class", "prix")
+            p2ClassItem3.innerHTML = prixTotal + " €"
+
+            let classItem4 = document.createElement("div")
+            classItem2.appendChild(classItem4)
+            classItem4.setAttribute("class", "cart__item__content__settings")
+
+            let classItem5 = document.createElement("div")
+            classItem4.appendChild(classItem5)
+            classItem5.setAttribute("class", "cart__item__content__settings__quantity")
+
+            let pClassItem5 = document.createElement("p")
+            classItem5.appendChild(pClassItem5)
+            pClassItem5.textContent = "Qté : " + element['Quantity']
+
+            let inputClassItem5 = document.createElement("input")
+            inputClassItem5.type = "number"
+            classItem5.appendChild(inputClassItem5)
+            inputClassItem5.setAttribute("id", "itemQuantity")
+            inputClassItem5.setAttribute("name", "itemQuantity")
+            inputClassItem5.setAttribute("min", "1")
+            inputClassItem5.setAttribute("max", "100")
+            inputClassItem5.setAttribute("value", element['Quantity'])
+
+            let classItem6 = document.createElement("div")
+            classItem4.appendChild(classItem6)
+            classItem6.setAttribute("class", "cart__item__content__settings__delete")
+
+            let pClassItem6 = document.createElement("p")
+            classItem6.appendChild(pClassItem6)
+            pClassItem6.setAttribute("class", "deleteItem")
+            pClassItem6.textContent = "Supprimer"
+     
+           
+            displayTotalArticles()
+            displayTotalPrice()
+            modifyItem()
+            deleteItem()
+            
             })
-         
             checkAndPost()
-    }else{
-        document.querySelector(".errorMsg").innerHTML = `Votre panier est vide `;
     }
+    cartEmpty()
 }
 
-
-
+/**
+ * Vérification des données formulaire
+ */
 function checkAndPost(){
     let panier = getPanier()
     let totalPrice = document.querySelector("#totalPrice");
-    let btnConfirm = document.querySelector(".cart__order__form__submit");
+    let btnConfirm = document.querySelector("#order");
     let inputFirstName = document.querySelector("#firstName");
     let inputLastName = document.querySelector("#lastName");
     let inputAddress = document.querySelector("#address");
     let inputCity = document.querySelector("#city")
     let inputMail = document.querySelector("#email")
+    
+
+
     let produits = [];
     // on fait le tour du panier et on récupère les id de chaque produits
     panier.forEach(element=>{
@@ -69,40 +120,53 @@ function checkAndPost(){
         // on ajoute les id dans la variable produits
         produits.push(id)
     })
-    let reg = new RegExp (/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/i);
     btnConfirm.addEventListener('click', function(e){
-        // on vérifie que toutes les valeurs sont bien présentes
-        if(!inputFirstName.value || !inputLastName.value || !inputAddress.value || !inputCity.value || !inputMail.value){
-            e.preventDefault()
-            alert("Veuillez remplir les champs vides s'il vous plait")
-            // on vérifie que l'email est correctement remplie
-        }else if(!reg.test(inputMail.value)){
-            e.preventDefault()
-            document.querySelector("#emailErrorMsg").innerHTML = "Votre adresse email n'est pas correcte "
-        }else{
-            // on crée un objet order avec les coordonnées de contact ainsi que les produits à envoyer à l'API grace à un fetch
-            const order = {
-                contact : {
-                    firstName : inputFirstName.value,
-                    lastName : inputLastName.value,
-                    address : inputAddress.value,
-                    city : inputCity.value,
-                    email : inputMail.value
-                },  
-                    products :
-                        produits    
+        e.preventDefault()
+        if (inputFirstName.value && inputLastName.value && inputAddress.value && inputCity.value && inputMail.value){
+            document.querySelector("#emailErrorMsg").innerHTML = ""
+            let reg = new RegExp (/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/i);
+            if((reg.test(inputMail.value))){
+                if(panier.length !== 0){
+                    // on crée un objet order avec les coordonnées de contact ainsi que les produits à envoyer à l'API grace à un fetch
+                    const order = {
+                        contact : {
+                        firstName : inputFirstName.value,
+                        lastName : inputLastName.value,
+                        address : inputAddress.value,
+                        city : inputCity.value,
+                        email : inputMail.value
+                    },  
+                        products :
+                            produits    
+                    }
+                    e.preventDefault()
+                    let totalPrix = totalPrice.innerHTML
+                    // on va envoyer l'objet order à l'API
+                    postApi(order)
                 }
+                else{
+                    e.preventDefault()
+                    errorMsgFormIfCartIsEmpty(e)   
+                }
+            }else{
                 e.preventDefault()
-                let totalPrix = totalPrice.innerHTML
-                // on va envoyer l'objet order à l'API
-                postApi(order)
+                document.querySelector("#emailErrorMsg").innerHTML = "Votre adresse email n'est pas correcte, ex : ireozriezpotiotio@lalala.com"
             }
-    })
+        }else{
+            e.preventDefault()
+            errorMsg(inputFirstName, 'firstName', "prénom")
+            errorMsg(inputLastName, 'lastName', "nom de famille")
+            errorMsg(inputAddress, 'address', "adresse")
+            errorMsg(inputCity, 'city', "ville")
+            errorMsg(inputMail, 'email', "adresse email")
+        }
+     })  
 }
 
-        
-
-
+/**
+ * Envoi des données formulaire à l'API et création de bon de commande
+ * @param {objet} element 
+ */
 async function postApi(element){
     try{
         // on envoie le contenu que l'on souhaite dans le body 
@@ -125,8 +189,6 @@ async function postApi(element){
     }
     
 }
-
-
 function displayTotalPrice(item){
     let panier = getPanier()
     let totalPrice = document.querySelector("#totalPrice");
@@ -143,7 +205,10 @@ function displayTotalPrice(item){
     totalPrice.innerHTML = total
 }
 
-function displayTotalArticles(item){
+/**
+ * Affichage du nombre total d'articles
+ */
+function displayTotalArticles(){
     let panier = getPanier()
     let totalQuantity = document.querySelector("#totalQuantity");
     //on déclare une variable total à zero
@@ -158,31 +223,44 @@ function displayTotalArticles(item){
     totalQuantity.innerHTML = total
 }
 
+
+/**
+ * Modification du panier si l'utilisateur modifie la quantité
+ */
 function modifyItem(){
     let panier = getPanier()
     let quantitéProduit = document.querySelectorAll("#itemQuantity");
-    let newValue = quantitéProduit.value
-    for (let i=0; i < quantitéProduit.length; i++){
-        quantitéProduit[i].addEventListener("change", function(){
-                let quantityFinale = Number(quantitéProduit[i].value)
-                panier[i]['Quantity'] = quantityFinale
-                console.log(panier)
-                localStorage.setItem("panier", JSON.stringify(panier))
-                location.reload()
+    let article = document.getElementsByClassName("cart__item")
+    let prix = document.querySelector(".prix")
+    for (let i = 0; i < article.length; i++){
+        let qty = article[i].querySelector("#itemQuantity")
+        let prix = article[i].querySelector(".prix")
+
+        qty.addEventListener('change', function(e){
+            let quantityFinale = Number(quantitéProduit[i].value)
+            panier[i]['Quantity'] = quantityFinale
+            localStorage.setItem("panier", JSON.stringify(panier))
+            displayTotalArticles()
+            displayTotalPrice()
+            let b = e.target
+            let parent = b.parentNode
+            parent.querySelector("p").innerHTML = "Qté :" + panier[i]['Quantity']
+            prix.innerHTML = panier[i]['price'] * panier[i]['Quantity'] + " €"
         })
     }
 }
 
+/**
+ * Suppression d'un ou des éléments si l'utilisateur actionne le bouton supprimer
+ */
 function deleteItem(){
     let panier = getPanier()
-    let btnReset = document.querySelectorAll(".deleteItem");
-    // faire le tour de tous les boutons supprimer
-        for(let i =0; i< btnReset.length; i++){
-            //au clic pour chaque bouton supprimer
-            btnReset[i].addEventListener('click', function(){
-                //supprimer l'article qui est relié au bouton supprimer
+    let articles = document.querySelectorAll(".cart__item");
+        for (let i =0; i < articles.length; i++){
+            let btn = articles[i].getElementsByClassName("deleteItem")[0];
+            btn.addEventListener("click", function(e){
+                console.log(e.target)
                 panier.splice([i], 1)
-                //enregistrer le nouveau panier avec l'élément supprimer en moins
                 localStorage.setItem("panier", JSON.stringify(panier))
                 if (panier == null){
                     return []
@@ -190,9 +268,13 @@ function deleteItem(){
                 location.reload()
                 console.log(panier)
             })
-        }   
+        }
 }
 
+/**
+ * Récuperer le panier
+ * @returns le panier vide ou rempli
+ */
 function getPanier(){
     // on récupère le panier qui est dans le localstorage sous l'appelation panier
     let panier = JSON.parse(localStorage.getItem("panier"))
@@ -205,24 +287,62 @@ function getPanier(){
     }   
 }
 
-
-function addLengthPanier(){
-    let panier = getPanier()
-    let total = 0
-    if(panier.length > 0){
-        panier.forEach(element => {
-            const totalArticle = element["Quantity"]
-            total = total+ totalArticle
-        })
-        document.querySelector(".count").innerHTML = total;
-        document.querySelector(".count").style.color = "#3498db"
-        document.querySelector(".count").style.marginLeft = "2px"
-        document.querySelector(".count").style.fontWeight = "bold"
+/**
+ * Afichage de messages d'erreur si les données formulaires sont vides 
+ * @param {objet} 
+ * @param {element} 
+ * @param {string} 
+ */
+function errorMsg(objet, html, texte){
+    if(!objet.value){
+        document.querySelector(`#${html}ErrorMsg`).textContent = `Veuillez indiquer votre ${texte} s'il vous plait`
+    }else{
+        document.querySelector(`#${html}ErrorMsg`).textContent = ""
     }
 }
 
+/**
+ * Vérifie que l'adresse email est entrée correctement
+ */
 
+
+/**
+ * Message d'erreur si le formulaire est correctement rempli mais le panier est vide
+ */
+function errorMsgFormIfCartIsEmpty(event){
+    event.preventDefault()
+    let inputFirstName = document.querySelector("#firstName");
+    let inputLastName = document.querySelector("#lastName");
+    let inputAddress = document.querySelector("#address");
+    let inputCity = document.querySelector("#city")
+    let inputMail = document.querySelector("#email")
+    let panier = getPanier()
+    if (inputFirstName.value && inputLastName.value && inputAddress.value && inputCity.value && inputMail.value){
+        event.preventDefault()
+        if(panier.length == 0){
+            event.preventDefault()
+            alert("Votre panier est vide, vous ne pouvez passer commande")
+        }
+    }
+}
+
+/**
+ * Message d'erreur quand le panier est vide
+ */
+function cartEmpty(){
+    let panier = getPanier()
+    if(panier.length == 0){
+        document.querySelector(".errorMsg").innerHTML = `Votre panier est vide `;
+        document.querySelector(".errorMsg").style.display = "flex"
+        document.querySelector(".errorMsg").style.justifyContent ="center"
+        document.querySelector(".errorMsg").style.alignItems ="center"
+    }
+}
+
+/**
+ * Récupération de l'api pour le produit concerné et récupération du prix du produit
+ * @param {objet} element 
+ */
 
 let panier = getPanier()
-
-console.log(localStorage)
+console.log(panier)

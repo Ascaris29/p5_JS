@@ -1,8 +1,12 @@
 
-addLengthPanier()
+recuperationIdApi()
 
 
-//recuperation de l'api
+
+/** 
+ * Récupération de l'api
+ * @param {url} url 
+ */
 async function recuperationApi(url){
     let recupApi = await fetch(url);
     let data = await recupApi.json();
@@ -10,9 +14,22 @@ async function recuperationApi(url){
     recuperationData(data);
 }
 
-recuperationApi("http://localhost:3000/api/products");
+/**
+ * recuperation de l'id pour l'api
+ */
+function recuperationIdApi(){
+    let url = new URL(window.location)
+    let id = url.searchParams.get("id")
+    recuperationApi(`http://localhost:3000/api/products/${id}`);
+    console.log()
+}
 
-//recuperation des données de l'api
+
+
+/**
+ * recuperation des données de l'api
+ * @param {url} objet 
+ */
 async function recuperationData(objet){
     const priceProduct = document.querySelector("#price");
     const titleProduct = document.querySelector("#title");
@@ -22,61 +39,59 @@ async function recuperationData(objet){
     const blocSelectColor = document.querySelector(".item__content__settings__color")
     const buttonCart = document.querySelector("#addToCart");
     const quantityProduct = document.querySelector("#quantity");
-                       
     //on récupère l'URL
     let urlObject = new URL(window.location);
     // on récupère l'id dans l'URL
     let idProduct = urlObject.searchParams.get("id")
     // pour chaque réponse de l'API
-
     let clic = 0;
-
     let panier = getPanier()
 
-    for(i =0; i < objet.length; i++){
-        // si l'id dans l'url correspond à l'ID contenu dans la reponse de l'API
-         if(idProduct === objet[i]["_id"]){
-        // récuperer les informations qui correspondent à cet ID
-           const name =  objet[i]["name"];
-           const price = objet[i]["price"];
-           const img = objet[i]["imageUrl"];
-           const desc = objet[i]["description"];0
-           let color = objet[i]["colors"];
+    const name =  objet["name"];
+    const price = objet["price"];
+    const img = objet["imageUrl"];
+    const desc = objet["description"];
+    let color = objet["colors"];
+    let altTxt = objet["altTxt"]
 
             priceProduct.innerHTML = price;
             titleProduct.innerHTML = name;
             descriptionProduct.innerHTML = desc;              
             imageProduct.setAttribute('src', img);
-
+            imageProduct.setAttribute('alt', altTxt)
             replaceSigneColor(color, selectColorsProduct)
-            
             let showSelectedColor = document.createElement('p');
             blocSelectColor.appendChild(showSelectedColor);
-
             //au clic, on recupère le panier, on recupere les infos du canapé désiré dans le tableau canapé
             buttonCart.addEventListener('click', function(){
             let panier = getPanier();
             let canape = {
-            id : idProduct,
-            name: name,
-            image : img,
-            price : price,
+                id : idProduct,
+                name: name,
+                image : img,
+                price : price
             };
-
             checkIfValuesIsCorrect(canape)
             checkIfValuesIsNotDoublons(canape)
             })      
-        }
-        } 
     }  
    
 
 //-------------------------------------------------localstorage---------------------------------------------------//
+
+/**
+ * enregistrer le panier
+ * @param {objet} panier 
+ */
 function savePanier(panier){     
     // on enregistre le panier dans le local storage                                         
     localStorage.setItem("panier", JSON.stringify(panier));               
 }
 
+/**
+ * recuperer le panier
+ * @returns le panier
+ */
 function getPanier(){
     // on récupère le panier 
     let panier = localStorage.getItem("panier")
@@ -90,24 +105,12 @@ function getPanier(){
     }   
 }
 
-// pour afficher les articles contenus dans le panier à côté de l'item panier 
-function addLengthPanier(){
-    let total = 0
-    let panier = getPanier()
-    if(panier.length > 0){
-        panier.forEach(element => {
-            const totalArticle = element["Quantity"]
-            total = total+ totalArticle
-        })
-        document.querySelector(".count").innerHTML = total;
-        document.querySelector(".count").style.color = "#3498db"
-        document.querySelector(".count").style.marginLeft = "2px"
-        document.querySelector(".count").style.fontWeight = "bold"
-    }
-  }
 
-
-
+/**
+ * remplacer les signaletiques des couleurs 
+ * @param {objet} objet 
+ * @param {element} parent 
+ */
   function replaceSigneColor(objet, parent){
     //pour toutes les couleurs
     for (let colori of objet){
@@ -122,6 +125,10 @@ function addLengthPanier(){
 }
 }
 
+/**
+ * verifier si les valeurs sont correctement remplies
+ * @param {objet} objet 
+ */
 function checkIfValuesIsCorrect(objet){
     const quantityProduct = document.querySelector("#quantity");
     const selectColorsProduct = document.querySelector("#colors");
@@ -140,6 +147,10 @@ function checkIfValuesIsCorrect(objet){
         }
 }
 
+/**
+ * verifier si les valeurs ont le même id et la même couleur(pas de doublons dans le panier)
+ * @param {objet} objet 
+ */
 function checkIfValuesIsNotDoublons(objet){
     const quantityProduct = document.querySelector("#quantity");
      //on récupère l'URL
@@ -189,7 +200,6 @@ function checkIfValuesIsNotDoublons(objet){
         panier.push(objet)
         savePanier(panier)
         alert("Votre article est bien dans le panier")
-        console.log(panier)
     }
 } 
-}            
+}           
