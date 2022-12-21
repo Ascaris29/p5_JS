@@ -69,7 +69,7 @@ async function recuperationData(objet){
                 id : idProduct,
                 name: name,
                 image : img,
-                price : price
+                //price : price
             };
             checkIfValuesIsCorrect(canape)
             checkIfValuesIsNotDoublons(canape)

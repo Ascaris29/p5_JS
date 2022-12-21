@@ -1,5 +1,8 @@
 
 createCart()
+
+
+
 /**
  * Affichage du panier 
  */
@@ -54,7 +57,9 @@ function createCart(){
             let p2ClassItem3 = document.createElement("p")
             classItem3.appendChild(p2ClassItem3)
             p2ClassItem3.setAttribute("class", "prix")
-            p2ClassItem3.innerHTML = prixTotal + " €"
+             recuperationPrixApi().then(meta => {
+                p2ClassItem3.innerHTML = meta + " €"
+            }) 
 
             let classItem4 = document.createElement("div")
             classItem2.appendChild(classItem4)
@@ -87,6 +92,7 @@ function createCart(){
             pClassItem6.textContent = "Supprimer"
      
            
+
             displayTotalArticles()
             displayTotalPrice()
             modifyItem()
@@ -189,20 +195,25 @@ async function postApi(element){
     }
     
 }
-function displayTotalPrice(item){
+/**
+ * Affiche le prix total de la commande
+ *  
+ */
+function displayTotalPrice(){
     let panier = getPanier()
     let totalPrice = document.querySelector("#totalPrice");
     //on déclare une variable total à zero
     let total = 0;
-    // on parcours tous les éléments du panier
+    // on parcours tous les éléments du panier et on récupère les prix des produits grace à la fonction fetch 
     panier.forEach(element => {
+        recuperationPrixApi().then(data => {
         // on récupère les prix des articles ainsi que les quantités et on les multiplie pour obtenir un prix total
-        const totalPrix = element["price"] * element["Quantity"]
+            const totalPrix = data * element["Quantity"]
         // à chaque passage de la variable total dans la boucle, on ajoute le prix total les uns avec les autres
-        total = total + totalPrix
-    })
-    
-    totalPrice.innerHTML = total
+            total = total + totalPrix
+            totalPrice.innerHTML = total
+        })
+     })
 }
 
 /**
@@ -231,11 +242,9 @@ function modifyItem(){
     let panier = getPanier()
     let quantitéProduit = document.querySelectorAll("#itemQuantity");
     let article = document.getElementsByClassName("cart__item")
-    let prix = document.querySelector(".prix")
     for (let i = 0; i < article.length; i++){
         let qty = article[i].querySelector("#itemQuantity")
         let prix = article[i].querySelector(".prix")
-
         qty.addEventListener('change', function(e){
             let quantityFinale = Number(quantitéProduit[i].value)
             panier[i]['Quantity'] = quantityFinale
@@ -245,7 +254,11 @@ function modifyItem(){
             let b = e.target
             let parent = b.parentNode
             parent.querySelector("p").innerHTML = "Qté :" + panier[i]['Quantity']
-            prix.innerHTML = panier[i]['price'] * panier[i]['Quantity'] + " €"
+            
+            recuperationPrixApi().then(data =>{
+                prix.innerHTML = data * panier[i]['Quantity'] + " €"
+                console.log(data)
+            })
         })
     }
 }
@@ -301,9 +314,6 @@ function errorMsg(objet, html, texte){
     }
 }
 
-/**
- * Vérifie que l'adresse email est entrée correctement
- */
 
 
 /**
@@ -344,5 +354,29 @@ function cartEmpty(){
  * @param {objet} element 
  */
 
-let panier = getPanier()
-console.log(panier)
+// let panier = getPanier()
+// console.log(panier)
+
+
+
+
+/**
+ * Récupération des prix de chaque articles avec les data-id et fetch 
+ * @returns prix de chaques articles
+ */
+async function recuperationPrixApi(){
+    let prix
+    let articles = document.querySelectorAll(".cart__item");
+    for(let i = 0; i< articles.length; i++){
+        let id = articles[i].getAttribute("data-id")
+        let ftch = await fetch("http://localhost:3000/api/products/" + id)
+        let rep = await ftch.json()
+        prix = await rep["price"]
+    }
+    return prix
+}
+
+
+
+
+
