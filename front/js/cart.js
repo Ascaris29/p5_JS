@@ -257,7 +257,6 @@ function modifyItem(){
             
             recuperationPrixApi().then(data =>{
                 prix.innerHTML = data * panier[i]['Quantity'] + " €"
-                console.log(data)
             })
         })
     }
@@ -349,20 +348,10 @@ function cartEmpty(){
     }
 }
 
-/**
- * Récupération de l'api pour le produit concerné et récupération du prix du produit
- * @param {objet} element 
- */
-
-// let panier = getPanier()
-// console.log(panier)
-
-
-
 
 /**
- * Récupération des prix de chaque articles avec les data-id et fetch 
- * @returns prix de chaques articles
+ * Récupération des prix de chaque article avec les data-id et fetch 
+ * @returns prix de chaques article
  */
 async function recuperationPrixApi(){
     let prix

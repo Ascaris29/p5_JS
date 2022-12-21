@@ -1,5 +1,7 @@
 showCart()
-
+/**
+ * Afficher le panier sur les pages d'index, de produits, de panier
+ */
 function showCart(){
     let panier = getPanier()
     let total = 0
@@ -14,7 +16,10 @@ function showCart(){
         document.querySelector(".count").style.fontWeight = "bold"
     }
 }
-
+/**
+ * Récupérer le panier
+ * @returns le panier ou un panier vide
+ */
 function getPanier(){
     // on récupère le panier 
     let panier = localStorage.getItem("panier")
