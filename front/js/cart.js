@@ -15,21 +15,21 @@ function createCart(){
     if(panier !== null){
         let prixTotal = 0
         // on va faire le tour du panier 
-        panier.forEach(element => {
+        panier.forEach(function(element, index){
             // pour chaque produit dans le panier, nous créeons un article et l'envoyons au DOM
             //article
             prixTotal = element["price"] * element["Quantity"];
             
-            let inputCart = document.createElement("article");
-            blocItems.appendChild(inputCart);
+            let articleElt = document.createElement("article");
+            blocItems.appendChild(articleElt);
             //console.log(priceProduit)
             //calculer le prix total de l'article
-            inputCart.setAttribute("class", "cart__item")
-            inputCart.setAttribute("data-id", element["id"])
-            inputCart.setAttribute("data-color", element["Color"])
+            articleElt.setAttribute("class", "cart__item")
+            articleElt.setAttribute("data-id", element["id"])
+            articleElt.setAttribute("data-color", element["Color"])
 
             let classItem1 = document.createElement("div");
-            inputCart.appendChild(classItem1)
+            articleElt.appendChild(classItem1)
             classItem1.setAttribute("class", "cart__item__img")
 
             let imgClassItem = document.createElement("img")
@@ -38,7 +38,7 @@ function createCart(){
             imgClassItem.setAttribute("alt", "")
 
             let classItem2 = document.createElement("div")
-            inputCart.appendChild(classItem2)
+            articleElt.appendChild(classItem2)
             classItem2.setAttribute("class", "cart__item__content")
             
             let classItem3 = document.createElement("div")
@@ -57,8 +57,8 @@ function createCart(){
             let p2ClassItem3 = document.createElement("p")
             classItem3.appendChild(p2ClassItem3)
             p2ClassItem3.setAttribute("class", "prix")
-             recuperationPrixApi().then(meta => {
-                p2ClassItem3.innerHTML = meta + " €"
+             recuperationPrixApi(element["id"]).then(meta => {
+                p2ClassItem3.innerHTML = meta * element["Quantity"] + " €"
             }) 
 
             let classItem4 = document.createElement("div")
@@ -90,12 +90,11 @@ function createCart(){
             classItem6.appendChild(pClassItem6)
             pClassItem6.setAttribute("class", "deleteItem")
             pClassItem6.textContent = "Supprimer"
-     
            
 
             displayTotalArticles()
             displayTotalPrice()
-            modifyItem()
+            modifyItem(articleElt, index)
             deleteItem()
             
             })
@@ -206,7 +205,7 @@ function displayTotalPrice(){
     let total = 0;
     // on parcours tous les éléments du panier et on récupère les prix des produits grace à la fonction fetch 
     panier.forEach(element => {
-        recuperationPrixApi().then(data => {
+        recuperationPrixApi(element['id']).then(data => {
         // on récupère les prix des articles ainsi que les quantités et on les multiplie pour obtenir un prix total
             const totalPrix = data * element["Quantity"]
         // à chaque passage de la variable total dans la boucle, on ajoute le prix total les uns avec les autres
@@ -238,28 +237,27 @@ function displayTotalArticles(){
 /**
  * Modification du panier si l'utilisateur modifie la quantité
  */
-function modifyItem(){
+function modifyItem(item, index){
     let panier = getPanier()
-    let quantitéProduit = document.querySelectorAll("#itemQuantity");
-    let article = document.getElementsByClassName("cart__item")
-    for (let i = 0; i < article.length; i++){
-        let qty = article[i].querySelector("#itemQuantity")
-        let prix = article[i].querySelector(".prix")
-        qty.addEventListener('change', function(e){
-            let quantityFinale = Number(quantitéProduit[i].value)
-            panier[i]['Quantity'] = quantityFinale
-            localStorage.setItem("panier", JSON.stringify(panier))
-            displayTotalArticles()
-            displayTotalPrice()
-            let b = e.target
-            let parent = b.parentNode
-            parent.querySelector("p").innerHTML = "Qté :" + panier[i]['Quantity']
-            
-            recuperationPrixApi().then(data =>{
-                prix.innerHTML = data * panier[i]['Quantity'] + " €"
+    let qty = item.querySelector("#itemQuantity");
+    let id = item.getAttribute("data-id")
+    let perix = item.querySelector(".prix")
+        recuperationPrixApi(id).then(meta => {
+            let prix = meta 
+            qty.addEventListener('change', function(e){
+                let quantityFinale = Number(qty.value)
+                panier[index]['Quantity'] = quantityFinale
+                localStorage.setItem("panier", JSON.stringify(panier))
+                console.log(panier)
+                displayTotalArticles()
+                displayTotalPrice()
+                let b = e.target
+                let parent = b.parentNode
+                parent.querySelector("p").innerHTML = "Qté :" + panier[index]['Quantity']
+                perix.innerHTML = prix * panier[index]['Quantity'] + " €"
+                showCart()
             })
-        })
-    }
+        }) 
 }
 
 /**
@@ -353,16 +351,11 @@ function cartEmpty(){
  * Récupération des prix de chaque article avec les data-id et fetch 
  * @returns prix de chaques article
  */
-async function recuperationPrixApi(){
-    let prix
-    let articles = document.querySelectorAll(".cart__item");
-    for(let i = 0; i< articles.length; i++){
-        let id = articles[i].getAttribute("data-id")
+async function recuperationPrixApi(id){
         let ftch = await fetch("http://localhost:3000/api/products/" + id)
         let rep = await ftch.json()
-        prix = await rep["price"]
-    }
-    return prix
+        let prix = await rep["price"]
+        return prix
 }
 
 
