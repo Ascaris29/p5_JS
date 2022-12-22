@@ -13,7 +13,7 @@ async function recuperation(url){
         
   }catch(e){
       const errorHtml = `<span class="err"> Erreur de chargement ..</span>`;
-      //blocSectionProduit.insertAdjacentHTML('beforeend', errorHtml);
+      blocSectionProduit.insertAdjacentHTML('beforeend', errorHtml);
       console.log(e);
   }
 }
@@ -40,12 +40,6 @@ function getPanier(){
  */
 function showData(objet){
   let items = document.querySelector("#items");
-  let idProduct = document.querySelector("#idProducts");
-  let descProduct = document.querySelector("#descProduct");
-  const blocSectionProduit = document.querySelector("#blockSectionProduit");
-  let nameProduct = document.querySelector("#productName");
-  let imageProduct = document.querySelector("#imgProduct");
-
       for (i = 0; i < objet.length; i++){         //recuperation data
         //capture des données API
         const idProduit = objet[i]['_id'];
@@ -53,9 +47,7 @@ function showData(objet){
         const descProduit = objet[i]["description"];
         const imageProduit = objet[i]["imageUrl"];
         const altImgProduit = objet[i]["altTxt"]
-
         creationElement()
-        
         /**
          * Création des éléments qui affichent les caractéristiques
          */
@@ -66,7 +58,7 @@ function showData(objet){
           newProductA.innerHTML = 
           `<a id="idProducts" href="product.html?id=${idProduit}"></a>
           <article id="articleProduit">
-          <img src="${imageProduit}" alt="" id="imgProduct">
+          <img src="${imageProduit}" alt="${altImgProduit}" id="imgProduct">
           <h3 id="productName">${nameProduit}</h3>
           <p class="productDescription" id="descProduct">${descProduit}</p>
           </article>

@@ -1,8 +1,5 @@
 
 recuperationIdApi()
-
-
-
 /** 
  * Récupération de l'api
  * @param {url} url 
@@ -25,7 +22,6 @@ function recuperationIdApi(){
 }
 
 
-
 /**
  * recuperation des données de l'api
  * @param {url} objet 
@@ -44,7 +40,6 @@ async function recuperationData(objet){
     // on récupère l'id dans l'URL
     let idProduct = urlObject.searchParams.get("id")
     // pour chaque réponse de l'API
-    let clic = 0;
     let panier = getPanier()
 
     const name =  objet["name"];
@@ -73,6 +68,7 @@ async function recuperationData(objet){
             };
             checkIfValuesIsCorrect(canape)
             checkIfValuesIsNotDoublons(canape)
+            showCart()
             })      
     }  
    
