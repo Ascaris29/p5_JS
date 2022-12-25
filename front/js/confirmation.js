@@ -14,16 +14,18 @@ function showIdOrder(){
     idOrderHtml.innerHTML = idUrl
     // on supprime l'id de la commande du localstorage
     localStorage.clear() 
-    console.log(localStorage)
 }
 
 /**
- * Redirection si l'utilisateur accede directement à la page confirmation sans passer commande
+ * Redirection si l'utilisateur accède directement à la page confirmation sans passer commande
  */
 function redirectionIfEmpty(){
+    //on récupère l'URL
     let newUrl = new URL (window.location);
+    // on récupère l'id dans l'URL
     let idUrl = newUrl.searchParams.get("id")
     let msgConfirmation = document.querySelector(".confirmation p")
+    // si l'ID dans l'URL est vide ou undefined, message de prevention et redirection
     if(idUrl == null || idUrl == "undefined"){
         msgConfirmation.innerHTML = "Votre panier est vide, vous allez être redirigé dans 7 secondes vers la page d'accueil"
         setTimeout( function redirection(){

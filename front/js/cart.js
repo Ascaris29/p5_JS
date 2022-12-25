@@ -241,20 +241,28 @@ function modifyItem(item, index){
     let panier = getPanier()
     let qty = item.querySelector("#itemQuantity");
     let id = item.getAttribute("data-id")
-    let perix = item.querySelector(".prix")
+    let price = item.querySelector(".prix")
+    //on récupère les prix grace à la fonction fetch 
         recuperationPrixApi(id).then(meta => {
+            // on enregistre la fonction dans une variable
             let prix = meta 
+            console.log(prix)
+            // si la quantité est modifiée
             qty.addEventListener('change', function(e){
                 let quantityFinale = Number(qty.value)
+                // on modifie la quantité du panier et on la remplace par la quantité demandée par l'utilisateur
                 panier[index]['Quantity'] = quantityFinale
+                // on enregistre son panier
                 localStorage.setItem("panier", JSON.stringify(panier))
                 console.log(panier)
                 displayTotalArticles()
                 displayTotalPrice()
                 let b = e.target
                 let parent = b.parentNode
+                // on modifie la quantité dans le dom
                 parent.querySelector("p").innerHTML = "Qté :" + panier[index]['Quantity']
-                perix.innerHTML = prix * panier[index]['Quantity'] + " €"
+                // on modifie le prix dans le dom
+                price.innerHTML = prix * panier[index]['Quantity'] + " €"
                 showCart()
             })
         }) 
@@ -324,8 +332,10 @@ function errorMsgFormIfCartIsEmpty(event){
     let inputCity = document.querySelector("#city")
     let inputMail = document.querySelector("#email")
     let panier = getPanier()
+    // si les valeurs sont correctement remplies
     if (inputFirstName.value && inputLastName.value && inputAddress.value && inputCity.value && inputMail.value){
         event.preventDefault()
+        // si le panier est vide
         if(panier.length == 0){
             event.preventDefault()
             alert("Votre panier est vide, vous ne pouvez passer commande")
