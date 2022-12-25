@@ -9,11 +9,8 @@ createCart()
 function createCart(){
     let panier = getPanier()
     let blocItems =  document.querySelector("#cart__items");
-    let price 
-
     // si le panier n'est pas vide
     if(panier !== null){
-        let prixTotal = 0
         // on va faire le tour du panier 
         panier.forEach(function(element, index){
             // pour chaque produit dans le panier, nous créeons un article et l'envoyons au DOM
@@ -246,7 +243,6 @@ function modifyItem(item, index){
         recuperationPrixApi(id).then(meta => {
             // on enregistre la fonction dans une variable
             let prix = meta 
-            console.log(prix)
             // si la quantité est modifiée
             qty.addEventListener('change', function(e){
                 let quantityFinale = Number(qty.value)
@@ -254,7 +250,6 @@ function modifyItem(item, index){
                 panier[index]['Quantity'] = quantityFinale
                 // on enregistre son panier
                 localStorage.setItem("panier", JSON.stringify(panier))
-                console.log(panier)
                 displayTotalArticles()
                 displayTotalPrice()
                 let b = e.target
@@ -362,13 +357,16 @@ function cartEmpty(){
  * @returns prix de chaques article
  */
 async function recuperationPrixApi(id){
-        let ftch = await fetch("http://localhost:3000/api/products/" + id)
+    try{
+        let ftch = await fetch("http://localhost:3000/api/products/" + id)         
         let rep = await ftch.json()
         let prix = await rep["price"]
         return prix
+    }catch(e){
+        console.log(e)
+    }
+        
 }
-
-
 
 
 

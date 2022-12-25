@@ -40,7 +40,6 @@ async function recuperationData(objet){
     // on récupère l'id dans l'URL
     let idProduct = urlObject.searchParams.get("id")
     // pour chaque réponse de l'API
-    let panier = getPanier()
 
     const name =  objet["name"];
     const price = objet["price"];
@@ -54,17 +53,18 @@ async function recuperationData(objet){
             descriptionProduct.innerHTML = desc;              
             imageProduct.setAttribute('src', img);
             imageProduct.setAttribute('alt', altTxt)
-            replaceSigneColor(color, selectColorsProduct)
+            for (let couleur of color){
+                selectColorsProduct.add(new Option(couleur));
+            }
+            //replaceSigneColor(color, selectColorsProduct)
             let showSelectedColor = document.createElement('p');
             blocSelectColor.appendChild(showSelectedColor);
             //au clic, on recupère le panier, on recupere les infos du canapé désiré dans le tableau canapé
             buttonCart.addEventListener('click', function(){
-            let panier = getPanier();
             let canape = {
                 id : idProduct,
                 name: name,
                 image : img,
-                //price : price
             };
             checkIfValuesIsCorrect(canape)
             checkIfValuesIsNotDoublons(canape)
@@ -102,24 +102,24 @@ function getPanier(){
 }
 
 
-/**
- * remplacer les signaletiques des couleurs 
- * @param {objet} objet 
- * @param {element} parent 
- */
-  function replaceSigneColor(objet, parent){
-    //pour toutes les couleurs
-    for (let colori of objet){
-        //si les couleurs ont un "/" dans leur nom
-        if ((colori.includes("/")) == true){
-            // remplacer le signe "/" par "&"
-            let selectReplace = colori.replace("/", " & ");
-            parent.add(new Option(selectReplace));
-        }else{
-            parent.add(new Option(colori));
-        }         
-}
-}
+// /**
+//  * remplacer les signaletiques des couleurs 
+//  * @param {objet} objet 
+//  * @param {element} parent 
+//  */
+//   function replaceSigneColor(objet, parent){
+//     //pour toutes les couleurs
+//     for (let colori of objet){
+//         //si les couleurs ont un "/" dans leur nom
+//         if ((colori.includes("/")) == true){
+//             // remplacer le signe "/" par "&"
+//             let selectReplace = colori.replace("/", " & ");
+//             parent.add(new Option(selectReplace));                  /*retirer cette fonction*/
+//         }else{
+//             parent.add(new Option(colori));
+//         }         
+// }
+// }
 
 /**
  * verifier si les valeurs sont correctement remplies
