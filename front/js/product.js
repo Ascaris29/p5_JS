@@ -1,4 +1,29 @@
+//-------------------------------------------------localstorage---------------------------------------------------//
+/**
+ * enregistrer le panier
+ * @param {objet} panier 
+ */
+ function savePanier(panier){     
+    // on enregistre le panier dans le local storage                                         
+    localStorage.setItem("panier", JSON.stringify(panier));               
+}
 
+/**
+ * recuperer le panier
+ * @returns le panier
+ */
+function getPanier(){
+    // on récupère le panier 
+    let panier = localStorage.getItem("panier")
+    // si le panier est vide
+    if (panier == null ){
+        // on retourne un tableau vide
+        return [];
+    }else{
+        // sinon on retourne le panier 
+        return JSON.parse(localStorage.getItem("panier"));                     
+    }   
+}
 recuperationIdApi()
 /** 
  * Récupération de l'api
@@ -10,7 +35,6 @@ async function recuperationApi(url){
     //await console.log(data)
     recuperationData(data);
 }
-
 /**
  * recuperation de l'id pour l'api
  */
@@ -18,10 +42,7 @@ function recuperationIdApi(){
     let url = new URL(window.location)
     let id = url.searchParams.get("id")
     recuperationApi(`http://localhost:3000/api/products/${id}`);
-    console.log()
 }
-
-
 /**
  * recuperation des données de l'api
  * @param {url} objet 
@@ -63,45 +84,12 @@ async function recuperationData(objet){
             buttonCart.addEventListener('click', function(){
             let canape = {
                 id : idProduct,
-                name: name,
-                image : img,
             };
             checkIfValuesIsCorrect(canape)
             checkIfValuesIsNotDoublons(canape)
             showCart()
             })      
     }  
-   
-
-//-------------------------------------------------localstorage---------------------------------------------------//
-
-/**
- * enregistrer le panier
- * @param {objet} panier 
- */
-function savePanier(panier){     
-    // on enregistre le panier dans le local storage                                         
-    localStorage.setItem("panier", JSON.stringify(panier));               
-}
-
-/**
- * recuperer le panier
- * @returns le panier
- */
-function getPanier(){
-    // on récupère le panier 
-    let panier = localStorage.getItem("panier")
-    // si le panier est vide
-    if (panier == null ){
-        // on retourne un tableau vide
-        return [];
-    }else{
-        // sinon on retourne le panier 
-        return JSON.parse(localStorage.getItem("panier"));                     
-    }   
-}
-
-
 // /**
 //  * remplacer les signaletiques des couleurs 
 //  * @param {objet} objet 
@@ -114,7 +102,7 @@ function getPanier(){
 //         if ((colori.includes("/")) == true){
 //             // remplacer le signe "/" par "&"
 //             let selectReplace = colori.replace("/", " & ");
-//             parent.add(new Option(selectReplace));                  /*retirer cette fonction*/
+//             parent.add(new Option(selectReplace));                  
 //         }else{
 //             parent.add(new Option(colori));
 //         }         

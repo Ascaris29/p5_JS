@@ -1,10 +1,33 @@
-
-createCart()
-
-
-
 /**
- * Affichage du panier 
+ * Récupère le panier
+ * @returns le panier vide ou plein
+ */
+ function getPanier(){
+    // on récupère le panier qui est dans le localstorage sous l'appelation panier
+    let panier = JSON.parse(localStorage.getItem("panier"))
+    //si le panier est vide, on retourne un tableau vide
+    if (panier == null){
+        return [];
+    }else{
+        // sinon on retourne le panier
+        return panier;                     
+    }   
+}
+/**
+ * Message d'erreur quand le panier est vide
+ */
+ function cartEmpty(){
+    let panier = getPanier()
+    if(panier.length == 0){
+        document.querySelector(".errorMsg").innerHTML = `Votre panier est vide `;
+        document.querySelector(".errorMsg").style.display = "flex"
+        document.querySelector(".errorMsg").style.justifyContent ="center"
+        document.querySelector(".errorMsg").style.alignItems ="center"
+    }
+}
+createCart()
+/**Crée un article dans le DOM pour chaque articles du panier si le panier n'est pas vide
+ * 
  */
 function createCart(){
     let panier = getPanier()
@@ -31,7 +54,9 @@ function createCart(){
 
             let imgClassItem = document.createElement("img")
             classItem1.appendChild(imgClassItem)
-            imgClassItem.setAttribute("src", element["image"])
+            recuperationImageApi(element["id"]).then(data => {
+            imgClassItem.setAttribute("src", data)
+            })
             imgClassItem.setAttribute("alt", "")
 
             let classItem2 = document.createElement("div")
@@ -44,7 +69,9 @@ function createCart(){
 
             let titleClassItem3 = document.createElement("h2")
             classItem3.appendChild(titleClassItem3)
-            titleClassItem3.textContent = element['name']
+            recuperationNameApi(element["id"]).then(data => {
+            titleClassItem3.textContent = data
+            })
 
             let pClassItem3 = document.createElement("p")
             classItem3.appendChild(pClassItem3)
@@ -54,8 +81,8 @@ function createCart(){
             let p2ClassItem3 = document.createElement("p")
             classItem3.appendChild(p2ClassItem3)
             p2ClassItem3.setAttribute("class", "prix")
-             recuperationPrixApi(element["id"]).then(meta => {
-                p2ClassItem3.innerHTML = meta * element["Quantity"] + " €"
+             recuperationPrixApi(element["id"]).then(data => {
+                p2ClassItem3.innerHTML = data * element["Quantity"] + " €"
             }) 
 
             let classItem4 = document.createElement("div")
@@ -87,8 +114,7 @@ function createCart(){
             classItem6.appendChild(pClassItem6)
             pClassItem6.setAttribute("class", "deleteItem")
             pClassItem6.textContent = "Supprimer"
-           
-
+        
             displayTotalArticles()
             displayTotalPrice()
             modifyItem(articleElt, index)
@@ -101,140 +127,55 @@ function createCart(){
 }
 
 /**
- * Vérification des données formulaire
+ * Récupération des prix des articles dans l'API
+ * @param {number} id 
+ * @returns prix
  */
-function checkAndPost(){
-    let panier = getPanier()
-    let totalPrice = document.querySelector("#totalPrice");
-    let btnConfirm = document.querySelector("#order");
-    let inputFirstName = document.querySelector("#firstName");
-    let inputLastName = document.querySelector("#lastName");
-    let inputAddress = document.querySelector("#address");
-    let inputCity = document.querySelector("#city")
-    let inputMail = document.querySelector("#email")
-    
-
-
-    let produits = [];
-    // on fait le tour du panier et on récupère les id de chaque produits
-    panier.forEach(element=>{
-        let id = element['id']
-        // on ajoute les id dans la variable produits
-        produits.push(id)
-    })
-    btnConfirm.addEventListener('click', function(e){
-        e.preventDefault()
-        if (inputFirstName.value && inputLastName.value && inputAddress.value && inputCity.value && inputMail.value){
-            document.querySelector("#emailErrorMsg").innerHTML = ""
-            let reg = new RegExp (/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/i);
-            if((reg.test(inputMail.value))){
-                if(panier.length !== 0){
-                    // on crée un objet order avec les coordonnées de contact ainsi que les produits à envoyer à l'API grace à un fetch
-                    const order = {
-                        contact : {
-                        firstName : inputFirstName.value,
-                        lastName : inputLastName.value,
-                        address : inputAddress.value,
-                        city : inputCity.value,
-                        email : inputMail.value
-                    },  
-                        products :
-                            produits    
-                    }
-                    e.preventDefault()
-                    let totalPrix = totalPrice.innerHTML
-                    // on va envoyer l'objet order à l'API
-                    postApi(order)
-                }
-                else{
-                    e.preventDefault()
-                    errorMsgFormIfCartIsEmpty(e)   
-                }
-            }else{
-                e.preventDefault()
-                document.querySelector("#emailErrorMsg").innerHTML = "Votre adresse email n'est pas correcte, ex : ireozriezpotiotio@lalala.com"
-            }
-        }else{
-            e.preventDefault()
-            errorMsg(inputFirstName, 'firstName', "prénom")
-            errorMsg(inputLastName, 'lastName', "nom de famille")
-            errorMsg(inputAddress, 'address', "adresse")
-            errorMsg(inputCity, 'city', "ville")
-            errorMsg(inputMail, 'email', "adresse email")
-        }
-     })  
-}
-
-/**
- * Envoi des données formulaire à l'API et création de bon de commande
- * @param {objet} element 
- */
-async function postApi(element){
+async function recuperationPrixApi(id){
     try{
-        // on envoie le contenu que l'on souhaite dans le body 
-        let post = await fetch("http://localhost:3000/api/products/order", {
-        method : "POST",
-        headers : {"Content-type" : "application/json"},
-        body: JSON.stringify(element)
-    })
-    // on récupère la reponse
-    let reponse = await post.json()
-    // recuperer l'id de commande dans la reponse et la rajouter au localstorage
-    console.log(reponse)
-    localStorage.setItem("orderId", reponse.orderId);
-    //recuperer l'id de commande et l'afficher dans la redirection 
-    let idOrder = localStorage.getItem("orderId")
-    document.location.href="confirmation.html?id=" + idOrder
-    //localStorage.clear()
+        let ftch = await fetch("http://localhost:3000/api/products/" + id)         
+        let rep = await ftch.json()
+        let prix = await rep["price"]
+        return prix
     }catch(e){
         console.log(e)
     }
-    
+        
 }
 /**
- * Affiche le prix total de la commande
- *  
+ * Récupération des images des articles dans l'API
+ * @param {number} id 
+ * @returns image
  */
-function displayTotalPrice(){
-    let panier = getPanier()
-    let totalPrice = document.querySelector("#totalPrice");
-    //on déclare une variable total à zero
-    let total = 0;
-    // on parcours tous les éléments du panier et on récupère les prix des produits grace à la fonction fetch 
-    panier.forEach(element => {
-        recuperationPrixApi(element['id']).then(data => {
-        // on récupère les prix des articles ainsi que les quantités et on les multiplie pour obtenir un prix total
-            const totalPrix = data * element["Quantity"]
-        // à chaque passage de la variable total dans la boucle, on ajoute le prix total les uns avec les autres
-            total = total + totalPrix
-            totalPrice.innerHTML = total
-        })
-     })
+async function recuperationImageApi(id){
+    try{
+        let ftch = await fetch("http://localhost:3000/api/products/" + id)         
+        let rep = await ftch.json()
+        let image = await rep["imageUrl"]
+        return image
+    }catch(e){
+        console.log(e)
+    }
 }
-
 /**
- * Affichage du nombre total d'articles
+ * Récupération des noms des articles dans l'API
+ * @param {number} id 
+ * @returns name
  */
-function displayTotalArticles(){
-    let panier = getPanier()
-    let totalQuantity = document.querySelector("#totalQuantity");
-    //on déclare une variable total à zero
-    let total = 0;
-    // on parcours tous les éléments du panier
-    panier.forEach(element => {
-        // on récupère les quantités pour chaque article
-        const totalArticle = element["Quantity"]
-        // a chaque passage de la variable total dans la boucle, on ajoute les quantités les unes aux autres
-        total = total+ totalArticle
-    })
-    totalQuantity.innerHTML = total
+async function recuperationNameApi(id){
+    try{
+        let ftch = await fetch("http://localhost:3000/api/products/" + id)
+        let rep = await ftch.json()
+        let name = await rep["name"]
+        return name
+    }catch(e){
+        console.log(e)
+    }
 }
-
-
 /**
  * Modification du panier si l'utilisateur modifie la quantité
  */
-function modifyItem(item, index){
+ function modifyItem(item, index){
     let panier = getPanier()
     let qty = item.querySelector("#itemQuantity");
     let id = item.getAttribute("data-id")
@@ -262,7 +203,6 @@ function modifyItem(item, index){
             })
         }) 
 }
-
 /**
  * Suppression d'un ou des éléments si l'utilisateur actionne le bouton supprimer
  */
@@ -283,38 +223,132 @@ function deleteItem(){
             })
         }
 }
-
 /**
- * Récuperer le panier
- * @returns le panier vide ou rempli
+ * Affiche le prix total de la commande
+ *  
  */
-function getPanier(){
-    // on récupère le panier qui est dans le localstorage sous l'appelation panier
-    let panier = JSON.parse(localStorage.getItem("panier"))
-    //si le panier est vide, on retourne un tableau vide
-    if (panier == null){
-        return [];
-    }else{
-        // sinon on retourne le panier
-        return panier;                     
-    }   
+ function displayTotalPrice(){
+    let panier = getPanier()
+    let totalPrice = document.querySelector("#totalPrice");
+    //on déclare une variable total à zero
+    let total = 0;
+    // on parcours tous les éléments du panier et on récupère les prix des produits grace à la fonction fetch 
+    panier.forEach(element => {
+        recuperationPrixApi(element['id']).then(data => {
+        // on récupère les prix des articles ainsi que les quantités et on les multiplie pour obtenir un prix total
+            const totalPrix = data * element["Quantity"]
+        // à chaque passage de la variable total dans la boucle, on ajoute le prix total les uns avec les autres
+            total = total + totalPrix
+            totalPrice.innerHTML = total
+        })
+     })
 }
-
+/**
+ * Affichage du nombre total d'articles
+ */
+function displayTotalArticles(){
+    let panier = getPanier()
+    let totalQuantity = document.querySelector("#totalQuantity");
+    //on déclare une variable total à zero
+    let total = 0;
+    // on parcours tous les éléments du panier
+    panier.forEach(element => {
+        // on récupère les quantités pour chaque article
+        const totalArticle = element["Quantity"]
+        // a chaque passage de la variable total dans la boucle, on ajoute les quantités les unes aux autres
+        total = total+ totalArticle
+    })
+    totalQuantity.innerHTML = total
+}
+/**
+ * Vérification des données formulaire
+ */
+function checkAndPost(){
+    let panier = getPanier()
+    let totalPrice = document.querySelector("#totalPrice");
+    let btnConfirm = document.querySelector("#order");
+    let inputFirstName = document.querySelector("#firstName");
+    let inputLastName = document.querySelector("#lastName");
+    let inputAddress = document.querySelector("#address");
+    let inputCity = document.querySelector("#city")
+    let inputMail = document.querySelector("#email")
+    let produits = [];
+    // on fait le tour du panier et on récupère les id de chaque produits
+    panier.forEach(element=>{
+        let id = element['id']
+        // on ajoute les id dans la variable produits
+        produits.push(id)
+    })
+    btnConfirm.addEventListener('click', function(e){
+        e.preventDefault()
+        if (inputFirstName.value && inputLastName.value && inputAddress.value && inputCity.value && inputMail.value){
+            document.querySelector("#emailErrorMsg").innerHTML = ""
+            let regMail = new RegExp (/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/i);
+            let regFirstName = new RegExp(/^[a-zA-Z '.-]*$/)
+            let regLastName = new RegExp(/^[a-zA-Z '.-]*$/)
+            if((regMail.test(inputMail.value)) && (regFirstName.test(inputFirstName.value)) && (regLastName.test(inputLastName.value))){
+                if(panier.length !== 0){
+                    // on crée un objet order avec les coordonnées de contact ainsi que les produits à envoyer à l'API grace à un fetch
+                    const order = {
+                        contact : {
+                        firstName : inputFirstName.value,
+                        lastName : inputLastName.value,
+                        address : inputAddress.value,
+                        city : inputCity.value,
+                        email : inputMail.value
+                    },  
+                        products :
+                            produits    
+                    }
+                    e.preventDefault()
+                    let totalPrix = totalPrice.innerHTML
+                    // on va envoyer l'objet order à l'API
+                    postApi(order)
+                }
+                else{
+                    e.preventDefault()
+                    errorMsgFormIfCartIsEmpty(e)   
+                }
+            }else{
+                if(!regMail.test(inputMail.value)){
+                    document.querySelector("#emailErrorMsg").innerHTML = "Votre adresse email n'est pas correcte, ex : ireozriezpotiotio@lalala.com"
+                }else{
+                    document.querySelector("#emailErrorMsg").innerHTML = ""
+                }
+                if(!regFirstName.test(inputFirstName.value)){
+                    document.querySelector("#firstNameErrorMsg").innerHTML = "Votre prénom n'est pas ecrit de façon correcte, ex : Marie"
+                }else{
+                    document.querySelector("#firstNameErrorMsg").innerHTML = ""
+                }
+                if(!regLastName.test(inputLastName.value)){
+                    document.querySelector("#lastNameErrorMsg").innerHTML = "Votre nom de famille n'est pas écrit de façon correcte, ex : Dupont"
+                }else{
+                    document.querySelector("#lastNameErrorMsg").innerHTML = ""
+                }
+            }
+        }else{
+            //e.preventDefault()
+            errorMsg(inputFirstName, 'firstName', "prénom")
+            errorMsg(inputLastName, 'lastName', "nom de famille")
+            errorMsg(inputAddress, 'address', "adresse")
+            errorMsg(inputCity, 'city', "ville")
+            errorMsg(inputMail, 'email', "adresse email")
+        }
+     })  
+}
 /**
  * Afichage de messages d'erreur si les données formulaires sont vides 
  * @param {objet} 
  * @param {element} 
  * @param {string} 
  */
-function errorMsg(objet, html, texte){
+ function errorMsg(objet, html, texte){
     if(!objet.value){
         document.querySelector(`#${html}ErrorMsg`).textContent = `Veuillez indiquer votre ${texte} s'il vous plait`
     }else{
         document.querySelector(`#${html}ErrorMsg`).textContent = ""
     }
 }
-
-
 
 /**
  * Message d'erreur si le formulaire est correctement rempli mais le panier est vide
@@ -338,35 +372,36 @@ function errorMsgFormIfCartIsEmpty(event){
     }
 }
 
-/**
- * Message d'erreur quand le panier est vide
- */
-function cartEmpty(){
-    let panier = getPanier()
-    if(panier.length == 0){
-        document.querySelector(".errorMsg").innerHTML = `Votre panier est vide `;
-        document.querySelector(".errorMsg").style.display = "flex"
-        document.querySelector(".errorMsg").style.justifyContent ="center"
-        document.querySelector(".errorMsg").style.alignItems ="center"
-    }
-}
 
 
 /**
- * Récupération des prix de chaque article avec les data-id et fetch 
- * @returns prix de chaques article
+ * Envoi des données formulaire à l'API et création de bon de commande
+ * @param {objet} element 
  */
-async function recuperationPrixApi(id){
+async function postApi(element){
     try{
-        let ftch = await fetch("http://localhost:3000/api/products/" + id)         
-        let rep = await ftch.json()
-        let prix = await rep["price"]
-        return prix
+        // on envoie le contenu que l'on souhaite dans le body 
+        let post = await fetch("http://localhost:3000/api/products/order", {
+        method : "POST",
+        headers : {"Content-type" : "application/json"},
+        body: JSON.stringify(element)
+    })
+    // on récupère la reponse
+    let reponse = await post.json()
+    // recuperer l'id de commande dans la reponse et la rajouter au localstorage
+    console.log(reponse)
+    localStorage.setItem("orderId", reponse.orderId);
+    //recuperer l'id de commande et l'afficher dans la redirection 
+    let idOrder = localStorage.getItem("orderId")
+    document.location.href="confirmation.html?id=" + idOrder
+    //localStorage.clear()
     }catch(e){
         console.log(e)
     }
-        
+    
 }
+
+
 
 
 

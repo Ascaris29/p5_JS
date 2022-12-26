@@ -18,23 +18,6 @@ let blocSectionProduit = document.querySelector("#blockSectionProduit")
       console.log(e);
   }
 }
-
-/**
- * Récupération du panier
- * @returns un objet panier vide ou l'objet panier avec les éléments du panier
- */
-function getPanier(){
-  // on récupère le panier qui est dans le localstorage sous l'appelation panier
-  let panier = JSON.parse(localStorage.getItem("panier"))
-  //si le panier est vide, on retourne un tableau vide
-  if (panier == null){
-      return [];
-  }else{
-      // sinon on retourne le panier
-      return panier;                     
-  }         
-}
-
 /**
  * Récupération des données de l'api et affichage des données
  * @param {objet} objet 
