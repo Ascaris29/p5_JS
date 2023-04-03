@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
   <head>
-    <title>Confirmation</title>
+    <title>Kanap</title>
 
     <meta charset="utf-8">
     <meta name="description" content="Plateforme incroyable de e-commerce">
@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="../css/style.css" rel="stylesheet" />
-    <link href="../css/confirmation.css" rel="stylesheet" />
+
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
@@ -34,24 +34,36 @@
           <nav>
             <ul>
               <a href="../index.html"><li>Accueil</li></a>
-              <a href="./cart.html"><li>Panier</li></a>
+              <a href="./cart.html"><li>Panier</li></a><span class="count"></span>
             </ul>
           </nav>
         </div>
       </div>
       <img class="banniere" src="../images/banniere.png" alt="Baniere">
     </header>
-    
-    <main class="limitedWidthBlockContainer">
-      <div class="limitedWidthBlock" id="limitedWidthBlock">
-        
-        <div class="confirmation">
-          <p>Commande validée ! <br>Votre numéro de commande est : <span id="orderId"><!-- 65431343444684674 --></span></p>
-        </div>
 
+    <main id="limitedWidthBlockContainer">
+      <div class="titles">
+        <h1>Nos produits</h1>
+        <h2>Une gamme d'articles exclusifs</h2>
+      </div>
+      <div class="limitedWidthBlock" id="blockSectionProduit">
+        
+       
+         <section class="items" id="items">
+           <!-- 
+          <a id="idProducts" href="./product.html?id=42">
+            <article>
+              <img src="" alt="" id="imgProduct">
+              <h3 id="productName"></h3>
+              <p class="productDescription" id="descProduct"></p>
+            </article>
+          </a> 
+        -->
+        </section>
+      
       </div>
     </main>
-    
     <footer>
       <div class="limitedWidthBlockContainer footerMain">
         <div class="limitedWidthBlock">
@@ -71,10 +83,11 @@
       </div>
       <div class="limitedWidthBlockContainer footerSecondary">
         <div class="limitedWidthBlock">
-          <p>© Copyright 2021 - 2042 | Openclassrooms by Openclassrooms | All Rights Reserved | Powered by Solène LEMA</p>
+          <p>© Copyright 2021 - 2042 | Openclassrooms by Openclassrooms | All Rights Reserved | Powered by Solène</p>
         </div>
       </div>
     </footer>
-  <script src="../js/confirmation.js"></script>
+    <script src="../js/tools.js"></script>
+    <script src="../js/index.js"></script>
   </body>
 </html>
